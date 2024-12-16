@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificador de Similaridade BERT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        textarea, input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verificador de Similaridade BERT</h1>
+        <form id="similarityForm">
+            <label for="marca">Sua Marca:</label>
+            <input type="text" id="marca" name="marca" placeholder="Digite o nome da sua marca" required>
+            
+            <label for="colidencias">Marcas Colidentes:</label>
+            <textarea id="colidencias" name="colidencias" placeholder="Digite as marcas supostamente colidentes, uma por linha" rows="6" required></textarea>
+            
+            <button type="submit">Calcular Similaridade</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('similarityForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resultDiv.innerHTML = "Calculando similaridades...";
+
+            const formData = new FormData(form);
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                resultDiv.innerHTML = `<h3>Resultados:</h3>`;
+                data.results.forEach(res => {
+                    resultDiv.innerHTML += `<p>${res.marca}: ${res.similarity}</p>`;
+                });
+            } else {
+                const error = await response.json();
+                resultDiv.innerHTML = `<p style="color: red;">Erro: ${error.error}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
